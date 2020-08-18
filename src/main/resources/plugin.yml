@@ -1,0 +1,14 @@
+name: SkillUnlock
+version: ${project.version}
+main: net.shadowrain.skillunlock.SkillUnlock
+api-version: 1.16
+authors: [LindForce]
+description: Permission Buying/Unlocking plugin.
+website: https://shadowrain.net
+commands:
+  skills:
+    description: Open main menu.
+    usage: /<command>
+  sureload:
+    description: Reload Skill Unlock config.
+    usage: /<command>

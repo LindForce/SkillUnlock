@@ -1,0 +1,59 @@
+# Menu Titles
+main-menu: 'Profile Customization Menu'
+skill-menu: 'Skill Unlock Menu'
+title-menu: 'Title Unlock Menu'
+
+# Main Menu
+skills-title: 'Skills'
+skills-description: '&6Unlock new skills!'
+titles-title: 'Titles'
+titles-description: '&3Unlock a new title!'
+
+
+# Skill Menu
+skill-success: '&fYou successfully unlocked: &a/'
+skill-deny: '&cYou have already unlocked that skill.'
+
+
+# Title Menu
+title-success: '&fYou successfully unlocked:'
+title-equip: '&aYou equiped title:'
+
+deposit-message: '&rwas taken from your account.'
+
+# Error messages.
+no-perm: '&cYou do not have permission to use that command.'
+no-money: '&eYou do not have enough money to unlock that.'
+
+reload-message: '&7Config reloaded.'
+
+# List of permissions. Number them correctly for the plugin to work.
+permissions:
+  '1':
+    command: 'afk'
+    node: 'essentials.afk'
+    description: '&eAccess to /afk'
+    cost: 2000.0
+  '2':
+    command: 'back'
+    node: 'essentials.back'
+    description: '&eAccess to /afk'
+    cost: 15000.0
+  '3':
+    command: 'kill'
+    node: 'essentials.kill'
+    description: '&eAccess to /afk'
+    cost: 100000.0
+
+
+# List of titles. Number them correctly for the plugin to work.
+# DO NOT CHANGE THE NAMES! THEY ARE USED TO CREATE TITLE PERMISSIONS.
+titles:
+  '1':
+    name: 'King'
+    title: '&8[&6King&8] '
+    cost: 10000.0
+  '2':
+    name: 'Queen'
+    title: '&8[&dQueen&8] '
+    cost: 10000.0
