@@ -37,12 +37,12 @@ permissions:
   '2':
     command: 'back'
     node: 'essentials.back'
-    description: '&eAccess to /afk'
+    description: '&eAccess to /back'
     cost: 15000.0
   '3':
     command: 'kill'
     node: 'essentials.kill'
-    description: '&eAccess to /afk'
+    description: '&eAccess to /kill'
     cost: 100000.0
 
 

@@ -135,9 +135,10 @@ public final class SkillUnlock extends JavaPlugin {
                 permMeta.setDisplayName(capitalize(command));
 
                 ArrayList<String> lore = new ArrayList<>();
+
                 // Change title depending on if the player has the permission.
                 if (p.hasPermission(permission)) {
-                    lore.add(color(""));
+                    lore.add(color("&aOwned"));
                 } else {
                     lore.add(color(description));
                     lore.add(ChatColor.GREEN + "$" + cost);

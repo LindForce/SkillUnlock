@@ -19,6 +19,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MenuHandler implements Listener {
 
@@ -29,6 +30,45 @@ public class MenuHandler implements Listener {
     public MenuHandler(SkillUnlock plugin) {
         this.plugin = plugin;
     }
+
+    public void setTitle(Player p, String title, String equipMessage) {
+        luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
+
+            user.data().clear(NodeType.PREFIX::matches);
+
+            // Find the highest priority of their other prefixes
+            // We need to do this because they might inherit a prefix from a parent group,
+            // and we want the prefix we set to override that!
+            Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
+            int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
+
+            // Create a node to add to the player.
+            Node prefixNode = PrefixNode.builder(title, priority).build();
+
+            // Add the node to the user.
+            user.data().add(prefixNode);
+
+            // Tell the sender.
+            p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + equipMessage + " " + title));
+        });
+    }
+
+
+    public void setPermission(Player p, String perm, String res) {
+        // Build title permission node and give to player.
+
+        Node permNode = Node.builder(perm).build();
+
+        luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
+            DataMutateResult result = user.data().add(permNode);
+            if (!result.wasSuccessful()) {
+                p.sendMessage(ChatColor.RED + "An error occurred when setting permission, please report this to an admin.");
+            } else {
+                p.sendMessage(res);
+            }
+        });
+    }
+
 
     @EventHandler
     public void onMenuClick(InventoryClickEvent e) {
@@ -95,25 +135,18 @@ public class MenuHandler implements Listener {
                 return;
             }
 
-            // Withdraw money and set permission.
+            // Format response and run set permission method.
+            String res = plugin.color(plugin.COLOR_PREFIX + " " + SKILL_SUCCESS + currentCommand);
+            setPermission(p, perm, res);
+
+            // Withdraw money.
             economy.withdrawPlayer(p, cost);
             p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " &e$" + cost + " " + DEPOSIT_MESSAGE));
 
-            Node permNode = Node.builder(perm).build();
 
-            luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
-                DataMutateResult result = user.data().add(permNode);
-                if (result.wasSuccessful()) {
-                    p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + SKILL_SUCCESS + currentCommand));
-                } else {
-                    p.sendMessage(ChatColor.RED + "An error occurred when setting permission, please report this to an admin.");
-                }
-            });
         }
 
         if (e.getView().getTitle().equalsIgnoreCase(TITLE_MENU)) {
-
-            p.closeInventory();
 
             // Use amount to decide what title was clicked.
             int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
@@ -122,75 +155,35 @@ public class MenuHandler implements Listener {
             // Get title name, cost and perm node.
             String title = plugin.getConfig().getString("titles." + strNumber + ".title");
             double cost = Double.parseDouble(Objects.requireNonNull(plugin.getConfig().getString("titles." + strNumber + ".cost")));
-            String titlePerm = "su.prefix." + plugin.getConfig().getString("titles." + strNumber + ".name").toLowerCase();
-            System.out.println(titlePerm);
+            String titlePerm = "su.prefix." + Objects.requireNonNull(plugin.getConfig().getString("titles." + strNumber + ".name")).toLowerCase();
 
 
             if (p.hasPermission(titlePerm)) {
-                // Check if player already has prefix perm, set prefix.
-                luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
+                p.closeInventory();
+                setTitle(p, title, TITLE_EQUIP);
 
-                    user.data().clear(NodeType.PREFIX::matches);
-
-                    // Find the highest priority of their other prefixes
-                    // We need to do this because they might inherit a prefix from a parent group,
-                    // and we want the prefix we set to override that!
-                    Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
-                    int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
-
-                    // Create a node to add to the player.
-                    Node prefixNode = PrefixNode.builder(title, priority).build();
-
-                    // Add the node to the user.
-                    user.data().add(prefixNode);
-
-                    // Tell the sender.
-                    p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + TITLE_EQUIP + " " + title));
-                });
             } else {
                 // Player does not have title perm, has to buy.
                 if (economy.getBalance(p) < cost) {
+                    p.closeInventory();
                     // Check if player has enough money.
                     p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + NO_MONEY));
                     return;
                 }
 
-                // Withdraw money and set prefix to keep the prefix.
+                // Build title permission node and give to player.
+
+                String res = plugin.color(plugin.COLOR_PREFIX + " " + TITLE_SUCCESS + " " + title);
+                setPermission(p, titlePerm, res);
+
+                // Withdraw money.
                 economy.withdrawPlayer(p, cost);
                 p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " &e$" + cost + " " + DEPOSIT_MESSAGE));
 
-                // Build title permission node and give to player.
-                Node titleNode = Node.builder(titlePerm).build();
+                // Refresh inventory.
+                p.closeInventory();
+                plugin.openTitleMenu(p);
 
-                luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
-                    DataMutateResult result = user.data().add(titleNode);
-                    if (!result.wasSuccessful()) {
-                        p.sendMessage(ChatColor.RED + "An error occurred when setting title permission, please report this to an admin.");
-                    } else {
-                        p.sendMessage("You received the perm: " + titlePerm);
-                    }
-                });
-
-                // Set prefix.
-                luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
-
-                    user.data().clear(NodeType.PREFIX::matches);
-
-                    // Find the highest priority of their other prefixes
-                    // We need to do this because they might inherit a prefix from a parent group,
-                    // and we want the prefix we set to override that!
-                    Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
-                    int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
-
-                    // Create a node to add to the player.
-                    Node prefixNode = PrefixNode.builder(title, priority).build();
-
-                    // Add the node to the user.
-                    user.data().add(prefixNode);
-
-                    // Tell the sender.
-                    p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + TITLE_SUCCESS + " " + title));
-                });
             }
         }
     }
