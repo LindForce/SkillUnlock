@@ -204,9 +204,7 @@ public final class SkillUnlock extends JavaPlugin {
 
         } catch (NullPointerException err) {
             System.out.println(PREFIX + " NullPointerException when creating menu! Config not loaded correctly.");
-        } /*catch (IllegalArgumentException err) {
-            System.out.println(PREFIX + " IllegalArgumentException when creating menu! (More than 54 perms?)");
-        }*/
+        }
     }
 
 

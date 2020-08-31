@@ -1,7 +1,6 @@
 package net.shadowrain.skillunlock.commands;
 
 import net.shadowrain.skillunlock.SkillUnlock;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

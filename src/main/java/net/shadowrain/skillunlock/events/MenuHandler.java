@@ -19,7 +19,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MenuHandler implements Listener {
 
