@@ -27,7 +27,7 @@ public class ReloadCommand implements CommandExecutor {
             if (p.hasPermission("su.reload")) {
 
                 plugin.reloadConfig();
-                p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + reloadMessage));
+                p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + "&7" + reloadMessage));
 
             } else {
                 p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + noPermMessage));

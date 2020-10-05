@@ -125,6 +125,17 @@ public final class SkillUnlock extends JavaPlugin {
 
             for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("permissions")).getKeys(false)) {
                 String command = getConfig().getString("permissions." + key + ".command");
+
+                // Check if command string has a / before to see if it needs to be removed for the display of the command.
+                try {
+                    if (command.charAt(0) == '/') {
+                        command = command.substring(1);
+                    }
+                } catch (NullPointerException err) {
+                    System.out.println(PREFIX + " NullPointerException when reading command string from config.");
+                }
+
+
                 String description = getConfig().getString("permissions." + key + ".description");
                 String permission = getConfig().getString("permissions." + key + ".node");
                 String cost = getConfig().getString("permissions." + key + ".cost");

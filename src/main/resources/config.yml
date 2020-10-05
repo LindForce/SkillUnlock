@@ -11,7 +11,7 @@ titles-description: '&3Unlock a new title!'
 
 
 # Skill Menu
-skill-success: '&fYou successfully unlocked: &a/'
+skill-success: '&fYou successfully unlocked: &a'
 skill-deny: '&cYou have already unlocked that skill.'
 
 
@@ -25,22 +25,22 @@ deposit-message: '&rwas taken from your account.'
 no-perm: '&cYou do not have permission to use that command.'
 no-money: '&eYou do not have enough money to unlock that.'
 
-reload-message: '&7Config reloaded.'
+reload-message: 'Config reloaded.'
 
 # List of permissions. Number them correctly for the plugin to work.
 permissions:
   '1':
-    command: 'afk'
+    command: '/afk'
     node: 'essentials.afk'
     description: '&eAccess to /afk'
     cost: 2000.0
   '2':
-    command: 'back'
+    command: '/back'
     node: 'essentials.back'
     description: '&eAccess to /back'
     cost: 15000.0
   '3':
-    command: 'kill'
+    command: '/kill'
     node: 'essentials.kill'
     description: '&eAccess to /kill'
     cost: 100000.0
