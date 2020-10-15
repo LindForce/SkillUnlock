@@ -68,7 +68,8 @@ public final class SkillUnlock extends JavaPlugin {
             System.out.println(PREFIX + " NullPointerException when calculating slots! Please report this to an admin.");
         }
 
-        total = (total + 8) / 9 * 9;
+        // Count the total slots needed in multiples of 9. (Add 10 instead of 8 to make room for back options)
+        total = (total + 10) / 9 * 9;
 
         return total;
     }
@@ -119,7 +120,8 @@ public final class SkillUnlock extends JavaPlugin {
 
         // Try to create GUI menu and fill it with items by iterating through the permissions keys.
         try {
-            Inventory menu = Bukkit.createInventory(p, calculateSlots("permissions"), color(SKILL_MENU));
+            int slots = calculateSlots("permissions");
+            Inventory menu = Bukkit.createInventory(p, slots, color(SKILL_MENU));
 
             int i = 0;
 
@@ -161,6 +163,13 @@ public final class SkillUnlock extends JavaPlugin {
 
                 menu.setItem(i, perm);
 
+                // Add back button.
+                ItemStack back = new ItemStack(Material.BARRIER);
+                ItemMeta backMeta = back.getItemMeta();
+                backMeta.setDisplayName(color("&eGo Back"));
+                back.setItemMeta(backMeta);
+                menu.setItem(slots - 1, back);
+
                 i += 1;
             }
 
@@ -178,7 +187,8 @@ public final class SkillUnlock extends JavaPlugin {
 
         // Try to create GUI menu and fill it with items by iterating through the permissions keys.
         try {
-            Inventory menu = Bukkit.createInventory(p, calculateSlots("titles"), color(TITLE_MENU));
+            int slots = calculateSlots("titles");
+            Inventory menu = Bukkit.createInventory(p, slots, color(TITLE_MENU));
 
             int i = 0;
 
@@ -194,6 +204,7 @@ public final class SkillUnlock extends JavaPlugin {
                 prefixMeta.setDisplayName(color(title));
 
                 ArrayList<String> lore = new ArrayList<>();
+
                 // Change title depending on if the player owns the prefix.
                 if (p.hasPermission("su.prefix." + getConfig().getString("titles." + key + ".name"))) {
                     lore.add(color("&aEquip title: &f" + description));
@@ -210,6 +221,19 @@ public final class SkillUnlock extends JavaPlugin {
 
                 i += 1;
             }
+
+            ItemStack unequip = new ItemStack(Material.ITEM_FRAME);
+            ItemMeta unequipMeta = unequip.getItemMeta();
+            unequipMeta.setDisplayName(color("&7Unequip Current Title"));
+            unequip.setItemMeta(unequipMeta);
+            menu.setItem(slots - 2, unequip);
+
+            ItemStack back = new ItemStack(Material.BARRIER);
+            ItemMeta backMeta = back.getItemMeta();
+            backMeta.setDisplayName(color("&eGo Back"));
+            back.setItemMeta(backMeta);
+            menu.setItem(slots - 1, back);
+
 
             p.openInventory(menu);
 
