@@ -58,6 +58,9 @@ public class MenuHandler implements Listener {
         });
     }
 
+    public boolean checkUserTitle(Player p, String title) {
+    }
+
 
     /**
      * removeTitle() - Unequip LuckPerms prefix and reset to current rank's title.
@@ -66,7 +69,25 @@ public class MenuHandler implements Listener {
      * @param removeMessage Prefix remove success message.
      */
     public void removeTitle(Player p, String title, String removeMessage) {
+        luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
 
+            user.data().clear(NodeType.PREFIX::matches);
+
+            // Find the highest priority of their other prefixes
+            // We need to do this because they might inherit a prefix from a parent group,
+            // and we want the prefix we set to override that!
+            Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
+            int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
+
+            // Create a node to add to the player.
+            Node prefixNode = PrefixNode.builder(title, priority).build();
+
+            // Add the node to the user.
+            user.data().remove(prefixNode);
+
+            // Tell the sender.
+            p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + removeMessage + " " + title));
+        });
     }
 
     /**
@@ -111,6 +132,7 @@ public class MenuHandler implements Listener {
 
         final String TITLE_SUCCESS = plugin.getConfig().getString("title-success");
         final String TITLE_EQUIP = plugin.getConfig().getString("title-equip");
+        final String TITLE_UNEQUIP = plugin.getConfig().getString("title-unequip");
 
         final String DEPOSIT_MESSAGE = plugin.getConfig().getString("deposit-message");
         final String NO_MONEY = plugin.getConfig().getString("no-money");
@@ -172,6 +194,7 @@ public class MenuHandler implements Listener {
 
         if (e.getView().getTitle().equalsIgnoreCase(TITLE_MENU)) {
 
+
             // Use amount to decide what title was clicked.
             int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
             String strNumber = String.valueOf(number);
@@ -183,6 +206,9 @@ public class MenuHandler implements Listener {
 
 
             if (p.hasPermission(titlePerm)) {
+
+                if (p.)
+
                 p.closeInventory();
                 setTitle(p, title, TITLE_EQUIP);
 

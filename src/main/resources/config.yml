@@ -18,6 +18,7 @@ skill-deny: '&cYou have already unlocked that skill.'
 # Title Menu
 title-success: '&fYou successfully unlocked:'
 title-equip: '&aYou equiped title:'
+title-unequip: '&eYou unequipped title:'
 
 deposit-message: '&rwas taken from your account.'
 
