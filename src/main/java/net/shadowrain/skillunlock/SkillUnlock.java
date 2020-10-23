@@ -26,12 +26,23 @@ public final class SkillUnlock extends JavaPlugin {
     public final String COLOR_PREFIX = "&8[&dSkill Unlock&8]";
     public final String PREFIX = "[Skill Unlock]";
 
+
+    /**
+     * Capitalize the first letter of a string. Originally used to capitalize first letter of command when hovering.
+     * @param str String to capitalize.
+     * @return The capitalized string.
+     */
     public String capitalize(String str) {
         String s1 = str.substring(0, 1).toUpperCase();
 
         return s1 + str.substring(1);
     }
 
+    /**
+     * Shortened function to use Minecraft color translation on text.
+     * @param text Text to use color translation on.
+     * @return String including the color translation function.
+     */
     public String color(String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
@@ -55,7 +66,11 @@ public final class SkillUnlock extends JavaPlugin {
         return econ;
     }
 
-    // Calculate how many slots are needed
+    /**
+     * Count through config category and determine how many inventory slots will be needed to display.
+     * @param category What category length to calculate.
+     * @return Amount of inventory slots needed.
+     */
     public int calculateSlots(String category) {
         int total = 0;
 
@@ -74,7 +89,10 @@ public final class SkillUnlock extends JavaPlugin {
         return total;
     }
 
-    // Main Menu
+    /**
+     * Create and open Main Menu.
+     * @param p Player to open inventory for.
+     */
     public void openMainMenu(Player p) {
         final String MAIN_MENU = getConfig().getString("main-menu");
         final String SKILLS_TITLE = getConfig().getString("skills-title");
@@ -114,7 +132,10 @@ public final class SkillUnlock extends JavaPlugin {
 
     }
 
-    // Skill Menu
+    /**
+     * Create and open Skills Menu.
+     * @param p Player to open inventory for.
+     */
     public void openSkillMenu(Player p) {
         final String SKILL_MENU = getConfig().getString("skill-menu");
 
@@ -181,7 +202,10 @@ public final class SkillUnlock extends JavaPlugin {
         }
     }
 
-    // Title Menu
+    /**
+     * Create and open Main Menu.
+     * @param p Player to open inventory for.
+     */
     public void openTitleMenu(Player p) {
         final String TITLE_MENU = getConfig().getString("title-menu");
 

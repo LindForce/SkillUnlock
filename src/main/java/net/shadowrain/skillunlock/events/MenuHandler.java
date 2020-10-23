@@ -30,6 +30,12 @@ public class MenuHandler implements Listener {
         this.plugin = plugin;
     }
 
+    /**
+     * setTitle() - Set LuckPerms prefix for a player.
+     * @param p Player to set prefix to.
+     * @param title Prefix to add to player (format '&8[Title]').
+     * @param equipMessage Equip success message.
+     */
     public void setTitle(Player p, String title, String equipMessage) {
         luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
 
@@ -53,6 +59,22 @@ public class MenuHandler implements Listener {
     }
 
 
+    /**
+     * removeTitle() - Unequip LuckPerms prefix and reset to current rank's title.
+     * @param p Player to remove prefix from.
+     * @param title Prefix to remove from player (format '&8[Title]').
+     * @param removeMessage Prefix remove success message.
+     */
+    public void removeTitle(Player p, String title, String removeMessage) {
+
+    }
+
+    /**
+     * setPermission() - Give LuckPerms permission (skill) to user.
+     * @param p Player to give perm to.
+     * @param perm Perm node to give to player.
+     * @param res Success message response.
+     */
     public void setPermission(Player p, String perm, String res) {
         // Build title permission node and give to player.
 
@@ -110,6 +132,9 @@ public class MenuHandler implements Listener {
         }
 
         if (e.getView().getTitle().equalsIgnoreCase(SKILL_MENU)) {
+
+            // Check if clicked item is back button.
+
 
             p.closeInventory();
 
