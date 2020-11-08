@@ -7,6 +7,7 @@ import net.luckperms.api.model.data.DataMutateResult;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.node.NodeType;
+import net.luckperms.api.node.types.ChatMetaNode;
 import net.luckperms.api.node.types.PrefixNode;
 import net.luckperms.api.query.QueryOptions;
 import net.milkbowl.vault.economy.Economy;
@@ -58,7 +59,27 @@ public class MenuHandler implements Listener {
         });
     }
 
-    public boolean checkUserTitle(Player p, String title) {
+
+    /** REMOVE THIS --------->
+     * userHasTitle() - Check if user has title.
+     * @param p Player to check prefix.
+     * @param title Prefix to check.
+     * @return True if user has the prefix on already, false if not.
+     */
+    public boolean userHasTitle(Player p, String title) {
+        luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
+
+            int priority = user.getNodes().stream()
+                    .filter(NodeType.PREFIX::matches)
+                    .map(NodeType.PREFIX::cast)
+                    .mapToInt(ChatMetaNode::getPriority)
+                    .max()
+                    .orElse(0);
+
+            if (p.hasPermission("prefix." + priority + "." + title)) {
+                return true;
+            }
+        });
     }
 
 
@@ -71,22 +92,24 @@ public class MenuHandler implements Listener {
     public void removeTitle(Player p, String title, String removeMessage) {
         luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
 
-            user.data().clear(NodeType.PREFIX::matches);
+            int priority = user.getNodes().stream()
+                    .filter(NodeType.PREFIX::matches)
+                    .map(NodeType.PREFIX::cast)
+                    .mapToInt(ChatMetaNode::getPriority)
+                    .max()
+                    .orElse(0);
 
-            // Find the highest priority of their other prefixes
-            // We need to do this because they might inherit a prefix from a parent group,
-            // and we want the prefix we set to override that!
-            Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
-            int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
+            // Check if user has permission
+            if (p.hasPermission("prefix." + priority + "." + title)) {
+                // Create a node to add to the player.
+                Node prefixNode = PrefixNode.builder(title, priority).build();
 
-            // Create a node to add to the player.
-            Node prefixNode = PrefixNode.builder(title, priority).build();
+                // Add the node to the user.
+                user.data().remove(prefixNode);
 
-            // Add the node to the user.
-            user.data().remove(prefixNode);
-
-            // Tell the sender.
-            p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + removeMessage + " " + title));
+                // Tell the sender.
+                p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + removeMessage + " " + title));
+            }
         });
     }
 
@@ -207,7 +230,7 @@ public class MenuHandler implements Listener {
 
             if (p.hasPermission(titlePerm)) {
 
-                if (p.)
+                removeTitle(p, title, TITLE_UNEQUIP);
 
                 p.closeInventory();
                 setTitle(p, title, TITLE_EQUIP);
