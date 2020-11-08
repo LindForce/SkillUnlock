@@ -83,7 +83,7 @@ public final class SkillUnlock extends JavaPlugin {
             System.out.println(PREFIX + " NullPointerException when calculating slots! Please report this to an admin.");
         }
 
-        // Count the total slots needed in multiples of 9. (Add 10 instead of 8 to make room for back options)
+        // Count the total slots needed in multiples of 9. (Add 9 instead of 8 to make room for back options)
         total = (total + 9) / 9 * 9;
 
         return total;
@@ -142,59 +142,65 @@ public final class SkillUnlock extends JavaPlugin {
         // Try to create GUI menu and fill it with items by iterating through the permissions keys.
         try {
             int slots = calculateSlots("permissions");
-            Inventory menu = Bukkit.createInventory(p, slots, color(SKILL_MENU));
+            if (slots <= 54) {
+                slots = 54;
+                Inventory menu = Bukkit.createInventory(p, slots, color(SKILL_MENU));
 
-            int i = 0;
+                int i = 0;
 
-            for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("permissions")).getKeys(false)) {
-                String command = getConfig().getString("permissions." + key + ".command");
+                for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("permissions")).getKeys(false)) {
+                    String command = getConfig().getString("permissions." + key + ".command");
 
-                // Check if command string has a / before to see if it needs to be removed for the display of the command.
-                try {
-                    if (command.charAt(0) == '/') {
-                        command = command.substring(1);
+                    // Check if command string has a / before to see if it needs to be removed for the display of the command.
+                    try {
+                        if (command.charAt(0) == '/') {
+                            command = command.substring(1);
+                        }
+                    } catch (NullPointerException err) {
+                        System.out.println(PREFIX + " NullPointerException when reading command string from config.");
                     }
-                } catch (NullPointerException err) {
-                    System.out.println(PREFIX + " NullPointerException when reading command string from config.");
+
+
+                    String description = getConfig().getString("permissions." + key + ".description");
+                    String permission = getConfig().getString("permissions." + key + ".node");
+                    String cost = getConfig().getString("permissions." + key + ".cost");
+                    int amount = parseInt(key); // Use key as amount to read current key when handling click event.
+
+                    ItemStack perm = new ItemStack(Material.IRON_BLOCK);
+                    ItemMeta permMeta = perm.getItemMeta();
+                    permMeta.setDisplayName(capitalize(command));
+
+                    ArrayList<String> lore = new ArrayList<>();
+
+                    // Change title depending on if the player has the permission.
+                    if (p.hasPermission(permission)) {
+                        lore.add(color("&aOwned"));
+                    } else {
+                        lore.add(color(description));
+                        lore.add(ChatColor.GREEN + "$" + cost);
+                    }
+
+                    permMeta.setLore(lore);
+                    perm.setItemMeta(permMeta);
+                    perm.setAmount(amount);
+
+                    menu.setItem(i, perm);
+
+                    // Add back button.
+                    ItemStack back = new ItemStack(Material.BARRIER);
+                    ItemMeta backMeta = back.getItemMeta();
+                    backMeta.setDisplayName(color("&eGo Back"));
+                    back.setItemMeta(backMeta);
+                    menu.setItem(slots - 1, back);
+
+                    i += 1;
                 }
 
-
-                String description = getConfig().getString("permissions." + key + ".description");
-                String permission = getConfig().getString("permissions." + key + ".node");
-                String cost = getConfig().getString("permissions." + key + ".cost");
-                int amount = parseInt(key); // Use key as amount to read current key when handling click event.
-
-                ItemStack perm = new ItemStack(Material.IRON_BLOCK);
-                ItemMeta permMeta = perm.getItemMeta();
-                permMeta.setDisplayName(capitalize(command));
-
-                ArrayList<String> lore = new ArrayList<>();
-
-                // Change title depending on if the player has the permission.
-                if (p.hasPermission(permission)) {
-                    lore.add(color("&aOwned"));
-                } else {
-                    lore.add(color(description));
-                    lore.add(ChatColor.GREEN + "$" + cost);
-                }
-
-                permMeta.setLore(lore);
-                perm.setItemMeta(permMeta);
-                perm.setAmount(amount);
-
-                menu.setItem(i, perm);
-
-                // Add back button.
-                ItemStack back = new ItemStack(Material.BARRIER);
-                ItemMeta backMeta = back.getItemMeta();
-                backMeta.setDisplayName(color("&eGo Back"));
-                back.setItemMeta(backMeta);
-                menu.setItem(slots - 1, back);
-
-                i += 1;
+                p.openInventory(menu);
+            } else {
+                System.out.println(PREFIX + " Exceeded max amount of items (54) in menu!");
             }
 
-            p.openInventory(menu);
         } catch (NullPointerException err) {
             System.out.println(PREFIX + " NullPointerException when creating menu! Config not loaded correctly.");
         } catch (IllegalArgumentException err) {
@@ -212,49 +218,53 @@ public final class SkillUnlock extends JavaPlugin {
         // Try to create GUI menu and fill it with items by iterating through the permissions keys.
         try {
             int slots = calculateSlots("titles");
-            Inventory menu = Bukkit.createInventory(p, slots, color(TITLE_MENU));
+            if (slots <= 54) {
+                slots = 54;
+                Inventory menu = Bukkit.createInventory(p, slots, color(TITLE_MENU));
 
-            int i = 0;
+                int i = 0;
 
-            for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("titles")).getKeys(false)) {
-                String title = getConfig().getString("titles." + key + ".title");
-                String description = getConfig().getString("titles." + key + ".name");
-                String cost = getConfig().getString("titles." + key + ".cost");
-                int amount = parseInt(key); // Use key as amount to read current key when handling click event.
+                for (String key : Objects.requireNonNull(getConfig().getConfigurationSection("titles")).getKeys(false)) {
+                    String title = getConfig().getString("titles." + key + ".title");
+                    String description = getConfig().getString("titles." + key + ".name");
+                    String cost = getConfig().getString("titles." + key + ".cost");
+                    int amount = parseInt(key); // Use key as amount to read current key when handling click event.
 
-                // Set item stack.
-                ItemStack prefix = new ItemStack(Material.NAME_TAG);
-                ItemMeta prefixMeta = prefix.getItemMeta();
-                prefixMeta.setDisplayName(color(title));
+                    // Set item stack.
+                    ItemStack prefix = new ItemStack(Material.NAME_TAG);
+                    ItemMeta prefixMeta = prefix.getItemMeta();
+                    prefixMeta.setDisplayName(color(title));
 
-                ArrayList<String> lore = new ArrayList<>();
+                    ArrayList<String> lore = new ArrayList<>();
 
-                // Change title depending on if the player owns the prefix.
-                if (p.hasPermission("su.prefix." + getConfig().getString("titles." + key + ".name"))) {
-                    lore.add(color("&aToggle title: &f" + description));
-                } else {
-                    lore.add(color("&eUnlock title: &f" + description));
-                    lore.add(ChatColor.GREEN + "$" + cost);
+                    // Change title depending on if the player owns the prefix.
+                    if (p.hasPermission("su.prefix." + getConfig().getString("titles." + key + ".name"))) {
+                        lore.add(color("&aToggle title: &f" + description));
+                    } else {
+                        lore.add(color("&eUnlock title: &f" + description));
+                        lore.add(ChatColor.GREEN + "$" + cost);
+                    }
+
+                    prefixMeta.setLore(lore);
+                    prefix.setItemMeta(prefixMeta);
+                    prefix.setAmount(amount);
+
+                    menu.setItem(i, prefix);
+
+                    i += 1;
                 }
 
-                prefixMeta.setLore(lore);
-                prefix.setItemMeta(prefixMeta);
-                prefix.setAmount(amount);
+                ItemStack back = new ItemStack(Material.BARRIER);
+                ItemMeta backMeta = back.getItemMeta();
+                backMeta.setDisplayName(color("&eGo Back"));
+                back.setItemMeta(backMeta);
+                menu.setItem(slots - 1, back);
 
-                menu.setItem(i, prefix);
 
-                i += 1;
+                p.openInventory(menu);
+            } else {
+                System.out.println(PREFIX + " Exceeded max amount of items (54) in menu!");
             }
-
-            ItemStack back = new ItemStack(Material.BARRIER);
-            ItemMeta backMeta = back.getItemMeta();
-            backMeta.setDisplayName(color("&eGo Back"));
-            back.setItemMeta(backMeta);
-            menu.setItem(slots - 1, back);
-
-
-            p.openInventory(menu);
-
         } catch (NullPointerException err) {
             System.out.println(PREFIX + " NullPointerException when creating menu! Config not loaded correctly.");
         }

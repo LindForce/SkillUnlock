@@ -13,7 +13,6 @@ import net.luckperms.api.query.QueryOptions;
 import net.milkbowl.vault.economy.Economy;
 import net.shadowrain.skillunlock.SkillUnlock;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -147,89 +146,87 @@ public class MenuHandler implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(SKILL_MENU)) {
 
             // Check if clicked item is back button.
-            if (e.getCurrentItem().getType() == Material.BARRIER) {
+
+            if (e.getSlot() == 53) {
                 plugin.openMainMenu(p);
-            }
-
-            p.closeInventory();
-
-            // Use amount to decide what permission was clicked.
-            int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
-            String strNumber = String.valueOf(number);
-
-            // Get command name, cost and perm node.
-            String currentCommand = plugin.getConfig().getString("permissions." + strNumber + ".command");
-            double cost = Double.parseDouble(Objects.requireNonNull(plugin.getConfig().getString("permissions." + strNumber + ".cost")));
-            String perm = plugin.getConfig().getString("permissions." + strNumber + ".node");
-
-            if (p.hasPermission(perm)) {
-                // Check if player already has the permission.
-                p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + SKILL_DENY));
-                return;
-            }
-
-            if (economy.getBalance(p) < cost) {
-                // Check if player has enough money.
-                p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + NO_MONEY));
-                return;
-            }
-
-            // Format response and run set permission method.
-            String res = plugin.color(plugin.COLOR_PREFIX + " " + SKILL_SUCCESS + currentCommand);
-            setPermission(p, perm, res);
-
-            // Withdraw money.
-            economy.withdrawPlayer(p, cost);
-            p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " &e$" + cost + " " + DEPOSIT_MESSAGE));
-
-
-        }
-
-        if (e.getView().getTitle().equalsIgnoreCase(TITLE_MENU)) {
-
-            // Check if clicked item is back button.
-            if (e.getCurrentItem().getType() == Material.BARRIER) {
-                plugin.openMainMenu(p);
-            }
-
-
-            // Use amount to decide what title was clicked.
-            int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
-            String strNumber = String.valueOf(number);
-
-            // Get title name, cost and perm node.
-            String title = plugin.getConfig().getString("titles." + strNumber + ".title");
-            double cost = Double.parseDouble(Objects.requireNonNull(plugin.getConfig().getString("titles." + strNumber + ".cost")));
-            String titlePerm = "su.prefix." + Objects.requireNonNull(plugin.getConfig().getString("titles." + strNumber + ".name")).toLowerCase();
-
-
-            if (p.hasPermission(titlePerm)) {
-
-                p.closeInventory();
-                toggleTitle(p, title, TITLE_EQUIP, TITLE_UNEQUIP);
-
             } else {
-                // Player does not have title perm, has to buy.
+                p.closeInventory();
+
+                // Use amount to decide what permission was clicked.
+                int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
+                String strNumber = String.valueOf(number);
+
+                // Get command name, cost and perm node.
+                String currentCommand = plugin.getConfig().getString("permissions." + strNumber + ".command");
+                double cost = Double.parseDouble(Objects.requireNonNull(plugin.getConfig().getString("permissions." + strNumber + ".cost")));
+                String perm = plugin.getConfig().getString("permissions." + strNumber + ".node");
+
+                if (p.hasPermission(perm)) {
+                    // Check if player already has the permission.
+                    p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + SKILL_DENY));
+                    return;
+                }
+
                 if (economy.getBalance(p) < cost) {
-                    p.closeInventory();
                     // Check if player has enough money.
                     p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + NO_MONEY));
                     return;
                 }
 
-                // Build title permission node and give to player.
-
-                String res = plugin.color(plugin.COLOR_PREFIX + " " + TITLE_SUCCESS + " " + title);
-                setPermission(p, titlePerm, res);
+                // Format response and run set permission method.
+                String res = plugin.color(plugin.COLOR_PREFIX + " " + SKILL_SUCCESS + currentCommand);
+                setPermission(p, perm, res);
 
                 // Withdraw money.
                 economy.withdrawPlayer(p, cost);
                 p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " &e$" + cost + " " + DEPOSIT_MESSAGE));
+            }
+        }
 
-                // Refresh inventory.
-                p.closeInventory();
-                plugin.openTitleMenu(p);
+        if (e.getView().getTitle().equalsIgnoreCase(TITLE_MENU)) {
 
+            // Check if clicked item is back button.
+            if (e.getSlot() == 53) {
+                plugin.openMainMenu(p);
+            } else {
+                // Use amount to decide what title was clicked.
+                int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
+                String strNumber = String.valueOf(number);
+
+                // Get title name, cost and perm node.
+                String title = plugin.getConfig().getString("titles." + strNumber + ".title");
+                double cost = Double.parseDouble(Objects.requireNonNull(plugin.getConfig().getString("titles." + strNumber + ".cost")));
+                String titlePerm = "su.prefix." + Objects.requireNonNull(plugin.getConfig().getString("titles." + strNumber + ".name")).toLowerCase();
+
+
+                if (p.hasPermission(titlePerm)) {
+
+                    p.closeInventory();
+                    toggleTitle(p, title, TITLE_EQUIP, TITLE_UNEQUIP);
+
+                } else {
+                    // Player does not have title perm, has to buy.
+                    if (economy.getBalance(p) < cost) {
+                        p.closeInventory();
+                        // Check if player has enough money.
+                        p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + NO_MONEY));
+                        return;
+                    }
+
+                    // Build title permission node and give to player.
+
+                    String res = plugin.color(plugin.COLOR_PREFIX + " " + TITLE_SUCCESS + " " + title);
+                    setPermission(p, titlePerm, res);
+
+                    // Withdraw money.
+                    economy.withdrawPlayer(p, cost);
+                    p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " &e$" + cost + " " + DEPOSIT_MESSAGE));
+
+                    // Refresh inventory.
+                    p.closeInventory();
+                    plugin.openTitleMenu(p);
+
+                }
             }
         }
     }
