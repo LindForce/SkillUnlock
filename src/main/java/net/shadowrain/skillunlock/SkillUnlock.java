@@ -103,7 +103,7 @@ public final class SkillUnlock extends JavaPlugin {
         Inventory menu = Bukkit.createInventory(p, 27, color(MAIN_MENU));
 
         // Skills menu button
-        ItemStack skills = new ItemStack(Material.GOLD_BLOCK);
+        ItemStack skills = new ItemStack(Material.ENCHANTED_BOOK);
 
         ItemMeta skillsMeta = skills.getItemMeta();
         skillsMeta.setDisplayName(color(SKILLS_TITLE));
@@ -166,7 +166,7 @@ public final class SkillUnlock extends JavaPlugin {
                     String cost = getConfig().getString("permissions." + key + ".cost");
                     int amount = parseInt(key); // Use key as amount to read current key when handling click event.
 
-                    ItemStack perm = new ItemStack(Material.IRON_BLOCK);
+                    ItemStack perm = new ItemStack(Material.ENCHANTED_BOOK);
                     ItemMeta permMeta = perm.getItemMeta();
                     permMeta.setDisplayName(capitalize(command));
 

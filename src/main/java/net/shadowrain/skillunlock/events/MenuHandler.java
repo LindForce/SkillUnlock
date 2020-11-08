@@ -132,7 +132,7 @@ public class MenuHandler implements Listener {
             p.closeInventory();
 
             switch(e.getCurrentItem().getType()) {
-                case GOLD_BLOCK:
+                case ENCHANTED_BOOK:
 
                     plugin.openSkillMenu(p);
                     break;
