@@ -84,7 +84,7 @@ public final class SkillUnlock extends JavaPlugin {
         }
 
         // Count the total slots needed in multiples of 9. (Add 10 instead of 8 to make room for back options)
-        total = (total + 10) / 9 * 9;
+        total = (total + 9) / 9 * 9;
 
         return total;
     }
@@ -231,7 +231,7 @@ public final class SkillUnlock extends JavaPlugin {
 
                 // Change title depending on if the player owns the prefix.
                 if (p.hasPermission("su.prefix." + getConfig().getString("titles." + key + ".name"))) {
-                    lore.add(color("&aEquip title: &f" + description));
+                    lore.add(color("&aToggle title: &f" + description));
                 } else {
                     lore.add(color("&eUnlock title: &f" + description));
                     lore.add(ChatColor.GREEN + "$" + cost);
@@ -245,12 +245,6 @@ public final class SkillUnlock extends JavaPlugin {
 
                 i += 1;
             }
-
-            ItemStack unequip = new ItemStack(Material.ITEM_FRAME);
-            ItemMeta unequipMeta = unequip.getItemMeta();
-            unequipMeta.setDisplayName(color("&7Unequip Current Title"));
-            unequip.setItemMeta(unequipMeta);
-            menu.setItem(slots - 2, unequip);
 
             ItemStack back = new ItemStack(Material.BARRIER);
             ItemMeta backMeta = back.getItemMeta();

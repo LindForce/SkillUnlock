@@ -13,6 +13,7 @@ import net.luckperms.api.query.QueryOptions;
 import net.milkbowl.vault.economy.Economy;
 import net.shadowrain.skillunlock.SkillUnlock;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,83 +33,50 @@ public class MenuHandler implements Listener {
     }
 
     /**
-     * setTitle() - Set LuckPerms prefix for a player.
+     * toggleTitle() - Toggle LuckPerms prefix for a player.
      * @param p Player to set prefix to.
      * @param title Prefix to add to player (format '&8[Title]').
      * @param equipMessage Equip success message.
-     */
-    public void setTitle(Player p, String title, String equipMessage) {
-        luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
-
-            user.data().clear(NodeType.PREFIX::matches);
-
-            // Find the highest priority of their other prefixes
-            // We need to do this because they might inherit a prefix from a parent group,
-            // and we want the prefix we set to override that!
-            Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
-            int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
-
-            // Create a node to add to the player.
-            Node prefixNode = PrefixNode.builder(title, priority).build();
-
-            // Add the node to the user.
-            user.data().add(prefixNode);
-
-            // Tell the sender.
-            p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + equipMessage + " " + title));
-        });
-    }
-
-
-    /** REMOVE THIS --------->
-     * userHasTitle() - Check if user has title.
-     * @param p Player to check prefix.
-     * @param title Prefix to check.
-     * @return True if user has the prefix on already, false if not.
-     */
-    public boolean userHasTitle(Player p, String title) {
-        luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
-
-            int priority = user.getNodes().stream()
-                    .filter(NodeType.PREFIX::matches)
-                    .map(NodeType.PREFIX::cast)
-                    .mapToInt(ChatMetaNode::getPriority)
-                    .max()
-                    .orElse(0);
-
-            if (p.hasPermission("prefix." + priority + "." + title)) {
-                return true;
-            }
-        });
-    }
-
-
-    /**
-     * removeTitle() - Unequip LuckPerms prefix and reset to current rank's title.
-     * @param p Player to remove prefix from.
-     * @param title Prefix to remove from player (format '&8[Title]').
      * @param removeMessage Prefix remove success message.
      */
-    public void removeTitle(Player p, String title, String removeMessage) {
+    public void toggleTitle(Player p, String title, String equipMessage, String removeMessage) {
         luckPerms.getUserManager().modifyUser(p.getUniqueId(), (User user) -> {
 
-            int priority = user.getNodes().stream()
+            int prePriority = user.getNodes().stream()
                     .filter(NodeType.PREFIX::matches)
                     .map(NodeType.PREFIX::cast)
                     .mapToInt(ChatMetaNode::getPriority)
                     .max()
                     .orElse(0);
 
-            // Check if user has permission
-            if (p.hasPermission("prefix." + priority + "." + title)) {
+            // Check if user has prefix
+            if (p.hasPermission("prefix." + prePriority + "." + title)) {
                 // Create a node to add to the player.
-                Node prefixNode = PrefixNode.builder(title, priority).build();
+                Node prefixNode = PrefixNode.builder(title, prePriority).build();
 
                 // Add the node to the user.
                 user.data().remove(prefixNode);
 
                 // Tell the sender.
                 p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + removeMessage + " " + title));
+            } else {
+
+                user.data().clear(NodeType.PREFIX::matches);
+
+                // Find the highest priority of their other prefixes
+                // We need to do this because they might inherit a prefix from a parent group,
+                // and we want the prefix we set to override that!
+                Map<Integer, String> inheritedPrefixes = user.getCachedData().getMetaData(QueryOptions.nonContextual()).getPrefixes();
+                int priority = inheritedPrefixes.keySet().stream().mapToInt(i -> i + 1).max().orElse(10);
+
+                // Create a node to add to the player.
+                Node prefixNode = PrefixNode.builder(title, priority).build();
+
+                // Add the node to the user.
+                user.data().add(prefixNode);
+
+                // Tell the sender.
+                p.sendMessage(plugin.color(plugin.COLOR_PREFIX + " " + equipMessage + " " + title));
             }
         });
     }
@@ -179,7 +147,9 @@ public class MenuHandler implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(SKILL_MENU)) {
 
             // Check if clicked item is back button.
-
+            if (e.getCurrentItem().getType() == Material.BARRIER) {
+                plugin.openMainMenu(p);
+            }
 
             p.closeInventory();
 
@@ -217,6 +187,11 @@ public class MenuHandler implements Listener {
 
         if (e.getView().getTitle().equalsIgnoreCase(TITLE_MENU)) {
 
+            // Check if clicked item is back button.
+            if (e.getCurrentItem().getType() == Material.BARRIER) {
+                plugin.openMainMenu(p);
+            }
+
 
             // Use amount to decide what title was clicked.
             int number = Objects.requireNonNull(e.getCurrentItem()).getAmount();
@@ -230,10 +205,8 @@ public class MenuHandler implements Listener {
 
             if (p.hasPermission(titlePerm)) {
 
-                removeTitle(p, title, TITLE_UNEQUIP);
-
                 p.closeInventory();
-                setTitle(p, title, TITLE_EQUIP);
+                toggleTitle(p, title, TITLE_EQUIP, TITLE_UNEQUIP);
 
             } else {
                 // Player does not have title perm, has to buy.
